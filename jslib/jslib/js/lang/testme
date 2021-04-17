@@ -1,0 +1,9 @@
+#include "js/lang/Parser.js"
+#include "js/lang/Interpreter.js"
+
+var p = new js.lang.Parser("var i = 12;print(i);");
+var q = p.parse();
+print(q);
+var r = js.lang.interpret("var i = 12; print(i);");
+
+

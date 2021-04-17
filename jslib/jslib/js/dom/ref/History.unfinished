@@ -1,0 +1,25 @@
+#ifndef INCLUDED_JS_DOM_HISTORY
+#define INCLUDED_JS_DOM_HISTORY
+
+#include "js/dom.js" // js.dom
+#include "js/native/Array/push.js" // push
+
+(function(){ 
+	js.dom.History = {
+		onchange : function(f) { 
+			this.onchange_handers.push(f);
+			if (this.pending) {
+				this.broadcast();
+				this.pending = false;
+			}
+		},
+		onready : function(f) { 
+			// adds a new listener that is fired when the history is made ready
+		},
+		set : function(s) { 
+		}
+	};
+	// some voodoo is required here to ensure this works
+
+})();
+#endif

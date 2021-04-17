@@ -1,0 +1,5 @@
+#include "js/util/DisjointSet.js"
+#include "js/util/Heap.js"
+#include "js/util/Timer.js"
+#include "js/util/Treap.js"
+#include "js/util/Trie.js"

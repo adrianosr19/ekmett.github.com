@@ -1,0 +1,51 @@
+js.aspect.Advise.before()
+js.aspect.Advise.after_return()	  called on successful return
+js.aspect.Advise.after_throw()	  called if the method throws
+js.aspect.Advise.after()		  called after the method, regardless. 
+js.aspect.Advise.around()
+js.aspect.PointCut.method(o,m).before(f)
+js.aspect.PointCut.class(f).before(f);
+js.aspect.PointCut.guarded(
+var cut = js.aspect.Pointcut.Class(f).after(f);
+cut.undo();
+js.Aspect.before
+var t = js.Aspect.pointcut_method(o,m);
+t.before(function(
+
+
+/**
+	var foo = function () { 
+		var t = this.pointcut(o,m);
+		t.before(function(){
+		});
+		t.after(function(){
+		});
+		t.around(function(that,f,args){
+			 do stuff.
+			f.apply(that,args);
+			 do other stuff
+		});
+	};
+	foo.prototype = new js.Aspect;
+	
+*/
+
+(fuction(){
+	var a = js.aop.Aspect = function(){}, p = a.prototype = {
+		cutmethod : function(o,m) {
+		},
+		cutconstructor: function(f) { 
+			 called when the function is invoked with new, chains by calling new
+			return new js.aspect.
+		},
+		cutclass : function(f) { 
+			 called whenever the class 
+		},
+		cutobject : function(o) { 
+			 called whenever any method on the object is invoked.
+		}
+	
+	};
+
+})(); 
+

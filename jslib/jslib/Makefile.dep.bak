@@ -1,0 +1,119 @@
+
+# DO NOT DELETE
+
+js/io/OStream.o: js/cps/Appel.js js/cps/Appel.h js/native/Array.js
+js/io/OStream.o: js/native/Platform.js js/native/Platform.h
+js/io/OStream.o: js/native/Array/push.js js/native/Array/join.js js/io.js
+js/io/OStream.o: js/io/common.js
+js/io/PushbackIStream.o: js/cps/Appel.js js/cps/Appel.h js/native/Array.js
+js/io/PushbackIStream.o: js/native/Platform.js js/native/Platform.h
+js/io/PushbackIStream.o: js/native/Array/push.js js/native/Array/join.js
+js/io/PushbackIStream.o: js/io.js js/io/common.js
+js/io/IStream.o: js/cps/Appel.js js/cps/Appel.h js/io.js js/io/common.js
+js/io/common.o: js/io.js js/io/common.js
+js/io/StringIStream.o: js/cps/Appel.js js/cps/Appel.h js/io.js
+js/io/StringIStream.o: js/io/common.js
+js/io/BufferedOStream.o: js/cps/Appel.js js/cps/Appel.h js/native/Array.js
+js/io/BufferedOStream.o: js/native/Platform.js js/native/Platform.h
+js/io/BufferedOStream.o: js/native/Array/push.js js/native/Array/join.js
+js/io/BufferedOStream.o: js/io/OStream.js js/io.js js/io/common.js
+js/io/BufferedIStream.o: js/native/Platform.js js/native/Platform.h
+js/io/BufferedIStream.o: js/cps/Appel.js js/cps/Appel.h js/native/Array.js
+js/io/BufferedIStream.o: js/native/Array/push.js js/native/Array/join.js
+js/io/BufferedIStream.o: js/io.js js/io/common.js
+js/lang/Interpreter.o: js/native/Platform.js js/native/Platform.h js/lang.js
+js/lang/Interpreter.o: js/lang/Parser.js js/lang/Token.js js/lang/Token.h
+js/lang/Interpreter.o: js/lang/Parser/progress.js
+js/lang/Atomizer.o: js/native/Platform.js js/native/Platform.h js/lang.js
+js/lang/Atomizer.o: js/lang/Parser.js js/lang/Token.js js/lang/Token.h
+js/lang/Atomizer.o: js/lang/Parser/progress.js js/lang/Token/visit.js
+js/lang/ref/NewParser.o: js/native/Platform.js js/native/Platform.h
+js/lang/ref/NewParser.o: js/lang.js js/lang/Token.js js/lang/Token.h
+js/lang/ref/NewParser.o: js/lang/Parser/progress.js
+js/lang/ref/Parser.o: js/native/Platform.js js/native/Platform.h js/lang.js
+js/lang/ref/Parser.o: js/lang/Token.js js/lang/Token.h
+js/lang/ref/Parser.o: js/lang/Parser/progress.js
+js/lang/Token/visit.o: js/lang/Token.h
+js/lang/Token/tree.o: js/lang/Parser.js js/native/Platform.js
+js/lang/Token/tree.o: js/native/Platform.h js/lang.js js/lang/Token.js
+js/lang/Token/tree.o: js/lang/Token.h js/lang/Parser/progress.js
+js/lang/Recompiler.o: js/lang/Parser.js js/native/Platform.js
+js/lang/Recompiler.o: js/native/Platform.h js/lang.js js/lang/Token.js
+js/lang/Recompiler.o: js/lang/Token.h js/lang/Parser/progress.js
+js/lang/Recompiler.o: js/lang/Recompiler.h js/util/DisjointSet.js js/util.js
+js/lang/Recompiler.o: js/lang/Recompiler/CToken.inc
+js/lang/Recompiler.o: js/lang/Recompiler/ConstantFolding.inc
+js/lang/Recompiler.o: js/lang/Recompiler/Flowgraph.inc
+js/lang/Recompiler.o: js/lang/Recompiler/Context.inc
+js/lang/all.o: js/lang/Token.js js/native/Platform.js js/native/Platform.h
+js/lang/all.o: js/lang.js js/lang/Token.h js/lang/Token/tree.js
+js/lang/all.o: js/lang/Parser.js js/lang/Parser/progress.js
+js/lang/all.o: js/lang/Token/visit.js js/lang/Interpreter.js
+js/lang/all.o: js/lang/Recompiler.js js/lang/Recompiler.h
+js/lang/all.o: js/util/DisjointSet.js js/util.js
+js/lang/all.o: js/lang/Recompiler/CToken.inc
+js/lang/all.o: js/lang/Recompiler/ConstantFolding.inc
+js/lang/all.o: js/lang/Recompiler/Flowgraph.inc
+js/lang/all.o: js/lang/Recompiler/Context.inc
+js/lang/Token.o: js/native/Platform.js js/native/Platform.h js/lang.js
+js/lang/Token.o: js/lang/Token.h
+js/lang/Parser.o: js/native/Platform.js js/native/Platform.h js/lang.js
+js/lang/Parser.o: js/lang/Token.js js/lang/Token.h js/lang/Parser/progress.js
+js/native/Object.o: js/native/Platform.js js/native/Platform.h
+js/native/XMLHttpRequest.o: js/native/Platform.js js/native/Platform.h
+js/native/Array.o: js/native/Platform.js js/native/Platform.h
+js/native/Array.o: js/native/Array/push.js js/native/Array/join.js
+js/native/Platform.o: js/native/Platform.h
+js/native/all.o: js/native/Platform.js js/native/Platform.h
+js/native/all.o: js/native/Array.js js/native/Array/push.js
+js/native/all.o: js/native/Array/join.js js/native/Boolean.js
+js/native/all.o: js/native/Function.js js/native/Object.js
+js/native/all.o: js/native/String.js js/native/XMLHttpRequest.js
+js/native/all.o: js/native/print.js
+js/util/Heap.o: js/native/Platform.js js/native/Platform.h js/util.js
+js/util/DisjointSet.o: js/util.js
+js/util/Trie.o: js/util.js
+js/util/all.o: js/util/DisjointSet.js js/util.js js/util/Heap.js
+js/util/all.o: js/native/Platform.js js/native/Platform.h js/util/Timer.js
+js/util/all.o: js/util/Treap.js js/util/Trie.js
+js/util/Timer.o: js/util.js js/util/Heap.js js/native/Platform.js
+js/util/Timer.o: js/native/Platform.h
+js/util/Treap.o: js/util.js
+js/net/all.o: js/net/Uri.js js/net.js
+js/net/Uri.o: js/net.js
+js/monad/Monad.o: js/monad.js
+js/monad/ref/Base.o: js/monad.js
+js/monad/Function.o: js/monad.js
+js/cps/Meta.o: js/cps.js js/cps/Appel.js js/cps/Appel.h
+js/cps/PartialMeta.o: js/cps.js js/cps/Appel.js js/cps/Appel.h
+js/cps/Semaphore.o: js/lang.js
+js/cps/Thread.o: js/native/Platform.js js/native/Platform.h js/cps.js
+js/cps/Thread.o: js/cps/Appel.js js/cps/Appel.h js/cps/Thread.h
+js/cps/Thread.o: js/cps/Semaphore.js js/lang.js js/util/Timer.js js/util.js
+js/cps/Thread.o: js/util/Heap.js
+js/cps/Appel.o: js/cps/Appel.h
+js/cps/Thread/Group.o: js/native/Platform.js js/native/Platform.h
+js/cps/Thread/Group.o: js/cps/Thread.h
+js/io.o: js/io/common.js js/io.js
+js/all.o: js/lang/all.js js/lang/Token.js js/native/Platform.js
+js/all.o: js/native/Platform.h js/lang.js js/lang/Token.h
+js/all.o: js/lang/Token/tree.js js/lang/Parser.js js/lang/Parser/progress.js
+js/all.o: js/lang/Token/visit.js js/lang/Interpreter.js js/lang/Recompiler.js
+js/all.o: js/lang/Recompiler.h js/util/DisjointSet.js js/util.js
+js/all.o: js/lang/Recompiler/CToken.inc
+js/all.o: js/lang/Recompiler/ConstantFolding.inc
+js/all.o: js/lang/Recompiler/Flowgraph.inc js/lang/Recompiler/Context.inc
+js/all.o: js/math/all.js js/math/Perlin.js js/math.js js/net/all.js
+js/all.o: js/net/Uri.js js/net.js js/util/all.js js/util/Heap.js
+js/all.o: js/util/Timer.js js/util/Treap.js js/util/Trie.js
+js/test/Assert.o: js/test.js js/test/Assert.h
+js/aop/Aspect.o: js/native/Platform.js js/native/Platform.h js/aop.js
+js/aop/Aspect.o: js/test/Assert.js js/test.js js/test/Assert.h
+js/aop/PointCut.o: js/aop/Aspect.js js/native/Platform.js
+js/aop/PointCut.o: js/native/Platform.h js/aop.js js/test/Assert.js
+js/aop/PointCut.o: js/test.js js/test/Assert.h
+js/aop/Observable.o: js/native/Platform.js js/native/Platform.h
+js/aop/Observable.o: js/aop/Aspect.js js/aop.js js/test/Assert.js js/test.js
+js/aop/Observable.o: js/test/Assert.h js/dom/Event.js js/dom.js
+js/math/Perlin.o: js/math.js
+js/math/all.o: js/math/Perlin.js js/math.js

@@ -1,0 +1,661 @@
+//@line 5 "js/lang.js"
+var js={lang:{}};
+//@line 9 "js/lang/Token.js"
+(function () {
+var t = js.lang.Token = function (t,v) { this.t = t; this.v = v; },
+tmap = {
+1:"statement", 2:"statements", 3:"identifier", 4:"literal",
+5:"label", 6:"end-of-file",7:"start-of-file", 8:"function call",
+9:"array", 10:"object", 20:"for..in", 21:"for each..in"
+},
+z = t.handlers = {
+$empty: {p:function(t){return ";"},v:"",l:1},
+$block: {p:function(t){return "{"+t.b+"}"},v:"b",l:1},
+$var: {p:function(t){return "var "+t.vars+";"},v:"vars",l:1},
+$if: {p:function(t){return "if "+t.cond+t.thn+(t.els? "else "+t.els :"")},v:"cond thn els",l:1},
+$do: {p:function(t){return "do "+t.loop+"while "+t.cond+";"},v:"loop cond",l:1,t:15},
+$while: {p:function(t){return "while"+t.cond+t.loop; },v:"cond loop",l:1,t:15},
+$continue: {p:function(t){return "continue "+(t.label||"")+";"},v:"label",l:1},
+$array: {p:function(t){return "["+t.b+"]"},v:"b",t:4,l:19},
+$object: {p:function(t){return "{"+t.b+"}"},v:"b",t:4,l:19},
+$break: {p:function(t){return "break "+(t.label||"")+";"},v:"label",l:1},
+$return: {p:function(t){return "return "+(t.expr||"")+";"},v:"expr",l:1},
+$throw: {p:function(t){return "throw "+t.expr+";"},v:"expr",l:1},
+$with: {p:function(t){return "with "+t.expr+t.stmt},v:"expr stmt",l:1},
+$func: {p:function(t){return "function "+(t.name||"")+"("+t.a+") {"+t.b+"}"},v:"b",l:19},
+$try: {p:function(t){return "try{"+t.b+"}"+(t.c?"catch("+t.cvar+"){"+t.c+"}":"")+(t.f?"finally{"+t.f+"}":"")},v:"b c f",l:1},
+$switch: {p:function(t){return "switch "+t.expr+"{"+t.cases+"}"},v:"expr cases",l:1},
+$case: {p:function(t){return "case "+t.expr+":"+t.stmts},v:"expr stmts",l:11},
+$default: {p:function(t){return "default:"+t.stmts},v:"stmts",l:11},
+$label: {p:function(t){return t.label+": "+t.stmt},v:"label stmt",l:1},
+$expr_stmt: {p:function(t){return t.expr+";"; },v:"expr",l:1},
+$vdecl: {p:function(t){return t.v+"="+t.init},v:"init",l:11},
+$prop: {p:function(t){return t.v+":"+t.init},v:"init",l:11},
+$stmts: {p:function(t){return t.join("")},v:"stmts",l:11},
+$pexpr: {p:function(t){return "("+t.expr+")"},v:"expr",l:19},
+$ident: {p:function(t){return t.v},v:"",l:19},
+$call: {p:function(t){return t.f+"("+t.a+")"},v:"f a",t:16,l:19},
+$bracket: {p:function(t){return t.l+"["+t.r+"]"},v:"l r",t:13,l:19},
+$lit: {p:function(t){return t.v},v:"",t:4,l:19},
+$this: {p:function(t){return t.v},v:"",l:19},
+$boolean: {p:function(t){return t.t},v:"",t:18},
+$null: {p:function(t){return t.t},v:"",t:22},
+$binary: {p:function(t){return t.l+t.t+t.r},v:"l r",t:13,l:19},
+$binary_rl: {p:function(t){return t.l+t.t+t.r},v:"r l",t:13,l:19},
+$binary_kw: {p:function(t){return t.l+" "+t.t+" "+t.r},v:"l r",t:13,l:19},
+$pre: {p:function(t){return " "+t.t+t.expr},v:"expr",t:12,l:19},
+$pre_kw: {p:function(t){return " "+t.t+" "+t.expr},v:"expr",t:12,l:19},
+$post: {p:function(t){return t.expr+t.t+" "},v:"expr",t:14,l:19},
+$new: {p:function(t){return " new "+t.f+(t.a?("("+t.a.join(",")+")"):"")},v:"a f",t:16,l:19},
+$tie: {p:function(t){return t.join(",");},v:"",t:17,l:11},
+$star: {p:function(t){return t.join("");},v:"",t:17,l:11},
+$for_each: {p:function(t){return "for each ("+t.v+" "+t.l+" in "+t.r+")"+t.loop},v:"iter loop",t:15,l:1},
+$for_in: {p:function(t){return "for ("+t.v+" "+t.l+" in "+t.r+")"+t.loop},v:"iter loop",t:15,l:1},
+
+$for_c: {p:function(t){return "for ("+(t.init+";").replace(new RegExp(";;$"),";")+t.cond+";"+t.next+")"+t.loop},t:15,l:1,
+v:"expr1 cond mod loop"}
+};
+for (var i in z) z[i].v = z[i].v.split(/ /);
+t.prototype = {
+toString : function() { return this.h ? this.h.p(this) : this.v || this.t; },
+type : function() { return tmap[this.t]||this.t; },
+};
+((t.Array=function(h){this.h=h}).prototype = new Array).toString = function() {
+return this.h.p(this);
+};
+})();
+//@line 28 "js/lang/Parser.js"
+(function (){
+var jl = js.lang, jlt=jl.Token, jlta=jlt.Array, z=jlt.handlers;
+
+function ops(i){
+return{6:-1,'in':i,',':1,'=':2,'+=':2,'-=':2,'*=':2,'/=':2,'%=':2,'<<=':2,'>>=':2,'>>>=':2,'&=':2,'^=':2,'|=':2,'?':3,'||':4,'&&':5,'|':6,'^':7,'&':8,'==':9,'!=':9,'===':9,'!==':9,'instanceof':10,'<':10,'<=':10,'>':10,'>=':10,'<<':11,'>>':11,'>>>':11,'+':12,'-':12,'*':13,'/':13,'%':13}
+}
+
+var prec = ops(6), noin = ops(-1),
+bkw = z.$binary_kw,
+oh = { "in":bkw, "instanceof": bkw },
+scan_lbl = {7:1,";":1,"{":1,"}":1},
+skip_lit = {3:1,4:1,")":1,"}":1,"]":1,".":1,"this":1},
+
+skip = new RegExp('^(?:\\s+|\\/(?:\\*(?:.|\\n)*?\\*\\/|\\/.*))+'),
+lit = new RegExp('(?:^(?:\\d+\\.\\d*(?:[eE][-+]?\\d+)?|^\\d+(?:\\.\\d*)?[eE][-+]?\\d+|^\\.\\d+(?:[eE][-+]?\\d+)?|(?:"(?:[^\\\\"]|\\\\.)*"|'+"'"+'(?:[^\\\\'+"'"+']|\\\\.)*'+"'"+')|0[xX][\\da-fA-F]+|^0[0-7]*|^\\d+|\\/(?:(?:\\\\.|[^\\\\\\/])+)\\/(?:[egim]*)))'),
+op= new RegExp('^(?:\\|[\\|=]?|\\&[\\&=]?|\\^=?|=(?:==?)?|!(?:==?)?|<(?:(?:<=?|=))?|>(?:(?:>(?:(?:>=?|=))?|=))?|\\+[\\+=]?|\\-[\\-=]?|\\*=?|\\/=?|%=?|[?,\\:~.()\\[\\]{};])'),
+kw= new RegExp('^(?:break|c(?:a(?:se|tch)|on(?:st|tinue))|d(?:e(?:fault|lete)|o)|else|f(?:alse|inally|or|unction)|i(?:n(?:stanceof)?|f)|n(?:ew|ull)|return|switch|t(?:h(?:is|row)|r(?:ue:y)|ypeof)|v(?:ar|oid)|w(?:hile|ith))$'),
+lbl = new RegExp('^(\\w+)(?:\\s+|\\/(?:\\*(?:.|\\n)*?\\*\\/|\\/.*))+:'),
+id = new RegExp('^[\\w$_]+'), newlines = new RegExp('\\n','g');
+
+
+atline = new RegExp('^(?:\\n|.)*(?://@line|#)\\s+(\\d+)(?:\\s+"([^"]*)")?(?:\\s\\d+)*\n((?:\\n|.)*)$'),
+
+stmt_consumes = {";":1,"{":1,"const":1,"var":1,"if":1,"do":1,"while":1,"for":1,"continue":1,"break":1,"return":1,"with":1,"switch":1,"throw":1,"try":1,5:1},
+qh = {"++":z.$post,"--":z.$post},ph={},
+ins = {"}":1,6:1,"else":1,"while":1},
+ao = '= += -= *= /= %= <<= >>= >>>= &= ^= |='.split(" "),
+
+ph["delete"]=ph["void"]=ph["typeof"]=z.$pre_kw;
+ph["++"]=ph["--"]=ph["+"]=ph["-"]=ph["~"]=ph["!"]=z.$pre;
+for (var i=0;i<ao.length;++i) oh[ao[i]]=z.$binary_rl;
+
+var jlp = jl.Parser = function(s,f) {
+this.src = s;
+this.file = f||"eval";
+this.line = 1;
+this.lpos = this.pos = 0;
+this.lbls = {};
+this.next = new jlt(7);
+this.consume();
+},
+
+jlps = jlp.SyntaxError = function(e,p,o) {
+this.e=e; this.parser=p; this.o=o;
+};
+jlps.prototype.toString = function() {
+return this.parser.progress(this.e,this.o);
+};
+
+
+
+
+
+var P = jlp.InternalError = function(m) { this.m = m; };
+P.prototype.toString = function(){ return this.m; };
+function panic(m) { throw new P(m); }
+
+jlp.prototype = {
+clone: function() {
+var r = new jlp(this.src,this.file);
+r.line =this.line;
+r.pos = this.pos;
+r.lpos = this.lpos;
+r.lbls = this.lbls;
+r.next = this.next;
+return r;
+},
+
+
+
+
+err: function(e) { throw new jlp.SyntaxError(e,this,this.lpos) },
+
+
+
+match: function(t){return this.next.t==t?this.consume():null},
+expect: function() {
+for (var i=0,a=arguments,l=a.length;i<l;++i) {
+var n=this.next,t=n.t;
+if (t==a[i]) this.consume();
+else if (a[i]!=";") this.err("Expected "+a[i]+ " but found "+n.type());
+else if (!n.nl && !ins[n.t]) this.err("Illegal ';' insertion required at "+n.t);
+}
+},
+consume: function() {
+var r = this.next,
+l = this.line,
+s = this.src.slice(this.pos),
+m = skip.exec(s),
+
+m2,
+
+token;
+if (m) {
+s = this.src.slice(this.pos+=m[0].length);
+
+if (m2=m[0].match(atline)) {
+this.line = parseInt(m2[1]);
+if (m2[2]) this.file = m2[2];
+if (m=m2[3].match(newlines)) this.line+=m.length;
+} else
+
+if (m=m[0].match(newlines)) this.line+=m.length;
+}
+this.lpos = this.pos;
+if (!s) {
+this.next=new jlt(6);
+return r;
+} else if (scan_lbl[r.t] && (m = lbl.exec(s)) && m[1] != "default") {
+if (s=m[0].match(newlines)) this.line+=s.length;
+token = new jlt(5,m[1]);
+token.name = m[1];
+} else {
+if ((!skip_lit[r.t]) && (m = lit.exec(s))) {
+token = new jlt(4,m[0]);
+token.h = z.$lit;
+} else if (m = op.exec(s)) token = new jlt(m[0]);
+else if (m = id.exec(s)) {
+token = new jlt(kw.exec(m[0]) ? m[0] : 3,m[0]);
+token.h = z.$id;
+} else this.err("Unknown lexical item");
+}
+var p = this.pos;
+this.pos += m[0].length;
+if (l != this.line) token.nl = 1;
+this.next=token;
+return r;
+},
+id: function() { return this.match(3); },
+func: function() {
+var l = this.lbls;
+this.lbls = {};
+var r = this.match("function");
+var a = this.consume();
+if (a.t == 3) { r.name = a; a = this.consume()}
+if (a.t != "(") this.err("Expected (");
+r.a = this.tie("id",",");
+this.expect(")","{");
+r.b = this.statements();
+this.expect("}");
+r.h = z.$func;
+this.lbls = l;
+return r;
+},
+star: function(f,h) {
+var r = new jlta(h||z.$star),s;
+while ((s=this[f]()) != null) r.push(s);
+return r;
+},
+tie: function(f,c,p) {
+var s, r = new jlta(z.$tie);
+while (s = this[f](p)) {
+r.push(s);
+if (!this.match(c)) break;
+}
+return r;
+},
+args: function() {
+if (this.match("(")) {
+var r = this.tie("aexpr",",");
+this.expect(")");
+return r;
+} else return null;
+},
+aexpr: function() { return this.expr(2); },
+uexpr: function() {
+var a = this.next,h;
+if (h=ph[a.t]) {
+a.h=h;
+this.consume();
+a.expr = this.uexpr();
+} else {
+var r = this.mexpr(false,true);
+if (!r) return null;
+a=this.next;
+if (h=qh[a.t]) {
+a.h=h;
+this.consume();
+a.expr = r;
+} else return r;
+}
+return a;
+},
+expr: function (m,p) { return this.op(this.uexpr(),m||1,p||prec) },
+op: function(lhs,min,prec) {
+var m = this.next.t, p = prec[m];
+if (typeof(p)=="undefined") return lhs;
+while (p>=min) {
+var op = this.consume(), rhs = (m == '?') ? this.hookrhs() : this.uexpr();
+if (!rhs || rhs.t == 6) this.err("Expected operand after '"+op.type()+"'");
+var n = this.next.t, q = prec[n];
+if (typeof(q)=="undefined") return this.reduce(lhs,op,rhs);
+while (q>p || (q==p && n==2)) {
+rhs = this.op(rhs,q,prec);
+n = this.next.t;
+q = prec[n];
+if (typeof(q)=="undefined") return this.reduce(lhs,op,rhs);
+}
+lhs = this.reduce(lhs,op,rhs);
+p = q; m = n;
+}
+return lhs;
+},
+reduce: function(lhs,op,rhs) {
+op.l = lhs;
+op.r = rhs;
+op.h = oh[op.t] || z.$binary;
+return op;
+},
+hookrhs: function() {
+var l = this.aexpr(), h=this.match(":");
+if (!h) this.err("Expected :");
+h.l = l;
+h.r = this.aexpr();
+h.h = z.$binary;
+return h
+},
+mexpr: function(reqargs,allowargs) {
+var a=this.next;
+switch (a.t) {
+case "new":
+this.consume();
+a.h = z.$new;
+a.f = this.mexpr(reqargs,false);
+a.a = this.args();
+if (!a.a && reqargs) this.err("arguments expected");
+break;
+case "function": a = this.func(a); break;
+default: a = this.primary(); break;
+case 6: return null;
+};
+
+while (a) {
+var b = this.next;
+switch (b.t) {
+case "[":
+this.consume();
+b.h = z.$bracket;
+b.r = this.expr();
+this.expect("]");
+b.l = a;
+a = b;
+break;
+case ".":
+this.consume();
+b.h = z.$binary;
+b.r = this.id();
+b.l = a;
+a = b;
+break;
+case "(":
+if (allowargs) {
+this.consume();
+b.t = 8;
+b.h = z.$call;
+b.a = this.tie("aexpr",",");
+b.f = a;
+this.expect(")");
+a=b;
+break;
+}
+case 6:
+default:
+return a;
+}
+}
+return a;
+},
+prop: function() {
+var a = this.next;
+if (a.t == 3 || a.t == 4|| a.t == 5) {
+if (a.t == 5) {
+a.t = 3;
+this.next = new jlt(":");
+} else {
+this.consume();
+}
+this.expect(":");
+a.h = z.$prop;
+a.init = this.aexpr();
+return a;
+}
+return null;
+},
+elist: function(r) {
+var s=0,t, r = new jlta(z.$star);
+while(1){
+if (t=this.match(",")){
+t.delim=1;
+r.push(t);
+s=0;
+} else {
+if (!s) {
+var t=this.aexpr();
+if (t) {
+r.push(t);
+s=1;
+} else return r;
+} else return r;
+}
+}
+},
+primary: function() {
+var a = this.next;
+switch (a.t) {
+case "(":
+this.consume();
+a.h = z.$pexpr;
+a.expr = this.expr();
+this.expect(")");
+return a;
+case "[":
+this.consume();
+a.t = 9;
+a.h = z.$array;
+a.b =this.elist();
+this.expect("]");
+return a;
+case "{":
+this.consume();
+a.t = 10;
+a.h = z.$object;
+a.b = this.tie("prop",",");
+this.expect("}");
+return a;
+case "true":
+case "false":
+a.h = z.$boolean;
+return this.consume();
+case "null":
+a.h = z.$null;
+return this.consume();
+case 4:
+case 3:
+return this.consume();
+case "this":
+a.h = z.$this;
+return this.consume();
+default:
+return null;
+};
+},
+pexpr: function() {
+var t = this.match("(");
+if (!t) this.err("Expected (");
+var r = this.expr();
+this.expect(")");
+t.h = z.$pexpr;
+t.expr = r;
+return t;
+},
+statements: function() {
+var r = this.star("statement",z.$stmts);
+r.t = 2;
+return r;
+},
+vdecl: function(prec) {
+var a = this.id();
+if (this.match("=")) {
+a.init = this.expr(2,prec);
+a.h = z.$vdecl;
+}
+return a;
+},
+statement: function(q) {
+var a = this.next;
+if (stmt_consumes[a.t]) {
+if (q && a.t != 5)
+for (var i=0,l=q.length;i<l;++i)
+this.lbls[q[i]]=a;
+this.consume();
+}
+switch (a.t) {
+case ";":
+a.h = z.$empty;
+break;
+case "{":
+a.h = z.$block;
+a.b = this.statements();
+this.expect("}");
+break;
+case "const": a.is_const = 1;
+case "var":
+a.h = z.$var;
+a.vars = this.tie("vdecl",",");
+this.expect(";");
+break;
+case "if":
+a.h = z.$if;
+a.cond = this.pexpr();
+a.thn = this.statement();
+if (this.match("else")) a.els = this.statement();
+break;
+case "do":
+var t = this.lbls[""];
+this.lbls[""] = a;
+a.h = z.$do;
+a.loop = this.statement();
+this.expect("while");
+a.cond = this.pexpr();
+this.expect(";");
+this.lbls[""] = t;
+break;
+case "while":
+var t = this.lbls[""];
+this.lbls[""] = a;
+a.h = z.$while;
+a.cond = this.pexpr();
+a.loop = this.statement();
+this.lbls[""] = t;
+break;
+case "for":
+var t = this.lbls[""];
+this.lbls[""] = a;
+if (this.next.t == 3 && this.next.v == "each") {
+a.each = "each";
+this.consume()
+}
+this.expect("(");
+var d = this.next,e=(d.t=="var"||d.t=="const"),b;
+if (e) {
+this.consume();
+b = this.tie("vdecl",",",noin);
+} else b = this.expr(2,noin);
+if (this.next.t == "in") {
+
+this.consume();
+a.r = this.expr();
+a.l = b;
+a.v = (e) ? d.t : "";
+a.h = a.each ? z.$for_each : z.$for_in;
+a.t = a.each ? 21 : 20;
+} else {
+a.h = z.$for_c;
+if (e) {
+d.h = z.$var;
+d.vars = b;
+a.init = d;
+} else a.init = b;
+if (!this.match(";")) this.err("Expected ;");
+a.cond = this.expr();
+if (!this.match(";")) this.err("Expected ;");
+a.next = this.expr();
+}
+this.expect(")");
+a.loop = this.statement();
+this.lbls[""] = t;
+break;
+case "continue":
+case "break":
+a.h = a.t == "continue"? z.$continue: z.$break;
+
+if (this.next.nl) this.warn("Link-break after "+a.t);
+
+a.lbl = this.next.nl ? null : this.match(3);
+if (!(a.target = this.lbls[a.lbl?a.lbl.v:""])) this.err("Unknown label "+a.lbl);
+this.expect(";");
+break;
+case "return":
+a.h = z.$return;
+
+if (this.next.nl) this.warn("Line-break after return");
+
+a.expr = this.next.nl ? null : this.expr();
+this.expect(";");
+break;
+case "with":
+a.h = z.$with;
+a.expr = this.pexpr();
+a.stmt = this.statement();
+break;
+case "switch":
+var t = this.lbls[""];
+this.lbls[""] = a;
+a.h = z.$switch;
+a.expr = this.pexpr();
+this.expect("{");
+a.cases = this.star("switch_case");
+this.expect("}");
+this.lbls[""] = t;
+break;
+case "throw":
+a.h = z.$throw;
+
+if (this.next.nl) this.warn("Line-break after throw");
+
+a.expr = this.next.nl? null : this.expr();
+this.expect(";");
+break;
+case "try":
+a.h = z.$try;
+this.expect("{");
+a.b = this.statements();
+this.expect("}");
+if (this.match("catch")) {
+this.expect("(");
+a.cvar = this.expect(3);
+this.expect(")","{");
+a.c = this.statements();
+this.expect("}");
+}
+if (this.match("finally")) {
+this.expect("{");
+a.f = this.statements();
+this.expect("}");
+}
+break;
+case "]":case "catch":case "finally":
+this.err("Unexpected "+this.t);
+case "case":case "default":case "}":case ")": case 6:
+return null;
+case "function":
+var f = this.func();
+f.is_decl = true;
+case 3:
+
+var c = this.clone();
+c.expect(3);
+if (c.match(":")) {
+
+this.expect(3,":")
+q=q||[];
+q.push(a);
+a.t = 5
+a.h = z.$lbl;
+a.stmt = this.statement(q);
+break;
+}
+default:
+a = this.expr();
+if (!a) return null;
+var b = new jlt(1);
+b.expr=a;
+b.h=z.$expr_stmt;
+a=b;
+this.expect(";");
+return a;
+};
+if (q && a.t != 5)
+for (var i=0,l=q.length;i<l;++i)
+delete this.lbls[q[i]];
+return a;
+},
+switch_case:function() {
+var a = this.next;
+switch (a.t) {
+case "case":
+this.consume();
+a.h = z.$case;
+a.expr = this.expr();
+break;
+case "default":
+this.consume();
+a.h = z.$default;
+break;
+return a;
+default:
+return null;
+}
+this.expect(":");
+a.stmts = this.statements();
+return a;
+},
+eof: function(o) {
+if (this.next.t != 6) this.err("Expected EOF");
+return o;
+},
+parse: function() {
+return this.eof(this.statements());
+}
+};
+jl.parse = function(x) {
+switch (typeof(x)) {
+case "object": s = x.toSource(); f = "expr"; break;
+case "array": s = x.toSource(); f = "expr"; break;
+case "function": s = x.toSource(); f = "expr"; break;
+case "string": s = x; f = "statements"; break;
+default: print(x+":"+typeof(x));return null;
+};
+var p = new jlp(s);
+return p.eof(p[f]());
+};
+})();
+//@line 4 "js/lang/Parser/progress.js"
+js.lang.Parser.prototype.progress = function(e,c) {
+function x(s,n){ return !n?"":x(s+s,parseInt(n/2))+(n%2?s:""); }
+var s = this.src,
+n = "\n",
+f = s.lastIndexOf(n,c)+1,
+l = s.indexOf(n,c),
+m = l==-1?s.length:l,
+p = this.file+": "+this.line+": ";
+return n+p+e+n+p+s.slice(f,m).replace("\t"," ")+n+p+x("-",c-f)+"^\n";
+};
