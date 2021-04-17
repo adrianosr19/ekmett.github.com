@@ -1,0 +1,32 @@
+name: lexical-monoids
+version: 0.1.1
+license: BSD3
+copyright: (c) 2009 Edward A. Kmett
+maintainer: Edward A. Kmett <ekmett@gmail.com>
+stability: experimental
+homepage: http://comonad.com/reader
+package-url:
+description: Facilities for lexing using monoids
+category: Data
+author: Edward A. Kmett
+exposed: True
+exposed-modules: Data.Monoid.Lexical
+                 Data.Monoid.Lexical.SourcePosition Data.Monoid.Lexical.UTF8.Decoder
+                 Data.Monoid.Lexical.Words
+hidden-modules:
+import-dirs: /home/ekmett/.cabal/lib/lexical-monoids-0.1.1/ghc-6.10.1
+library-dirs: /home/ekmett/.cabal/lib/lexical-monoids-0.1.1/ghc-6.10.1
+hs-libraries: HSlexical-monoids-0.1.1
+extra-libraries:
+extra-ghci-libraries:
+include-dirs:
+includes:
+depends: base-4.0.0.0 bytestring-0.9.1.4 category-extras-0.53.5
+         fingertree-0.0 parallel-1.1.0.0 text-0.1
+hugs-options:
+cc-options:
+ld-options:
+framework-dirs:
+frameworks:
+haddock-interfaces: /home/ekmett/.cabal/share/doc/lexical-monoids-0.1.1/html/lexical-monoids.haddock
+haddock-html: /home/ekmett/.cabal/share/doc/lexical-monoids-0.1.1/html
